@@ -1,102 +1,52 @@
-Backbone Nested Models [![Build Status](https://travis-ci.org/blittle/backbone-nested-models.png?branch=master)](https://travis-ci.org/blittle/backbone-nested-models)
-======================
+# Backbone Relational Model with restorable and diff function:
+## Description
+This library is a folk version of Backbone Nested Models by Bret Little, which is to support some additional features as follows:
+- An Backbone Model or Backbone Collection can be restored to original state (value).
+- Get only changed properties of an Backbone Model or Backbone Collection which is useful to optimize the payload size.
 
-Backbone nested models is meant to be a lightweight and simple solution for nested models in [Backbone.js](http://backbonejs.org/). It gives you
-nothing fancy, just simple relations (2.1 kilobytes minified). If you are looking for a larger more complex and exhaustive solution checkout
-[Backbone-relational](https://github.com/PaulUithol/Backbone-relational) by Paul Uithol.
+## Usage:
 
-## Options
-
-Each `Backbone.Model` can contain an array of `relations`. Each Relation defines a nested model or collection which will
-be represented by that attribute.
-
-```javascript
-
-var Book = Backbone.Model.extend({
-    relations: {
-      "author": Backbone.Model
-    }
-});
-
-var book = new Book();
-
-book.set({
-  "author": {
-    "name" : "Heber J. Grant",
-    "title": "President",
-    "age"  : "47"
-  },
-  "pages": 450
-});
-
-var author = book.get("author");
-
-author.get("name") === "Heber J. Grant";
-author.parent.get('pages') === 450;
+1. Extending Backbone.RelationalModel or RelationalCollection as you need.
 
 ```
-Whenever set is called on a model, or a json response is saved to a model, if a relation exists for one of the attributes
-being saved, a new instance of that relation will be created or if it already exists, it will be updated. Also note that
-the relation will be given a backwards reference to its parent model through the keyword `parent`. A `_parent` attribute will also be added to the options paramter passed to the initialize method, but be aware that the parent model is not entirely initialized at this point.
-
-Collections work similarly except that the backwards reference from a model which is part of a colleciton which is a 
-relation of a model is `collection.parent`.
-
-```javascript
-
-var Package = Backbone.Model.extend({
-    relations: {
-      "documents": Backbone.Collection
-    }
+let model = _.extend({}, Backbone.RelationalModel.prototype, {
+    //...
 });
-
-var pkg = new Package();
-
-pkg.set({
-  "documents": [
-    {id:1, name: "Document 1"},
-    {id:2, name: "Document 2"},
-  ],
-  "packageTitle": "My Package"
-});
-
-var document1 = pkg.get("documents").get(1);
-
-document1.get("name") === "Document 1";
-
-document1.collection.parent.get("packageTitle") === "My Package";
 
 ```
 
-Backbone nested models will never recreate an entire relation as an attribute to a model. It only creates the relation
-once and thereafter updates the collection or model representing the relation. This is important because event bindings
-or cached references may be pointing to the previous relations, and if they are recreated those references would be lost.
+```
+let collection = _.extend({}, Backbone.RelationalCollection.prototype, {
+    //...
+});
+```
+2.  Initialization 
 
-## Change log
+```
+md.Contacts = md.AddressBook.extend({
+    intialize: function(){
+        this.relations = {
+            {key} : {type}
+        };
+    }
+});
+```
+[key] : the property of the model   
+[type] : the corresponding type assigned to the property
 
-v2.0.1
-* Explicitly depend upon underscore - https://github.com/blittle/backbone-nested-models/pull/25
 
-v2.0.0
-* Use build int `Collection.prototype.set` - https://github.com/blittle/backbone-nested-models/pull/23
+## How to run test
 
-v0.7.0
-* Add AMD support
+```
+$ npm test
+```
 
-v0.6.0
-* Merge https://github.com/blittle/backbone-nested-models/pull/15
+```
+$ npm run test-report
+```
 
-v0.5.1
-* Fix toJSON from failing when relations are defined but don't exist
-
-v0.5.0 
-
-* Feature - Call reset event for nested Models/Collections - #5
-* Feature - Recursively call .toJSON()
-* Fix memory leak issue where parent references weren't removed on "unset"
-* Fix various issues with the collection merging.
-* Add karma test suite
-
+Test report is generated in ./test-report.html   
+Test coverage report is generated in ./coverage/lcov-report/index.html
 
 ## License
 
